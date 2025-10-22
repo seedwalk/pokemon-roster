@@ -176,7 +176,7 @@ function Roster({ pokemonList }: RosterProps) {
 
   return (
     <>
-      <div className="w-full h-screen overflow-x-auto overflow-y-hidden" ref={scrollContainerRef}>
+      <div className="w-full h-screen overflow-hidden" ref={scrollContainerRef}>
       
       <div className="flex  px-8 h-full items-center">
         {infiniteList.map((pokemon, index) => {
