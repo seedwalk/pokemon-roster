@@ -205,13 +205,19 @@ function Rooster({ pokemonList }: RoosterProps) {
                   ? 'rotate(15deg) translateY(-40px) scale(1.15)' 
                   : 'rotate(15deg)',
                 zIndex: isActive ? 50 : 1,
-                background: pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
+                border: isActive 
+                  ? '2px solid transparent'
+                  : '1px solid rgba(255, 255, 255, 0.2)',
+                backgroundImage: isActive
+                  ? `${pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'}, linear-gradient(135deg, #667eea 0%, #764ba2 15%, #f093fb 30%, #4facfe 45%, #00f2fe 60%, #43e97b 75%, #fa709a 90%, #fee140 100%)`
+                  : pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+                backgroundOrigin: isActive ? 'border-box' : 'padding-box',
+                backgroundClip: isActive ? 'padding-box, border-box' : 'padding-box',
+                boxShadow: isActive 
+                  ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
+                  : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
               }}
-              className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 flex flex-col justify-center cursor-pointer ${
-                isActive 
-                  ? 'border-4 border-blue-500 shadow-2xl ring-4 ring-blue-200' 
-                  : 'border border-gray-300'
-              }`}
+              className="flex-shrink-0 w-64 h-[120vh] p-4 rounded-xl transition-all duration-300 flex flex-col justify-center cursor-pointer"
             >
               <div className="py-60 flex flex-col items-center justify-between h-full">
                 <div className=" flex items-start justify-center h-16">
