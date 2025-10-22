@@ -1,34 +1,15 @@
-import { useEffect, useState, useTransition } from "react"
 import Rooster from "./components/Rooster"
-
-interface PokemonListItem {
-  name: string;
-  url: string;
-}
+import { usePokeApi } from "./providers/PokeApiProvider"
 
 function App() {
-  const [pokemonList, setPokemonList] = useState<PokemonListItem[]>([]);
-  const [requestingPOkeing, setRequestingPokemons] = useTransition();
-
-  const requestPokemons = () => setRequestingPokemons(async () => {
-    try {
-      const request = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
-      const {results}=  await request.json();
-      setPokemonList(results as PokemonListItem[]);
-    } catch(e) {
-    console.error(e)
-    }  
-  });
-
-  useEffect(() => {
-    requestPokemons()
-  }, []);
+  const { pokemonList, isRequestingPokemon } = usePokeApi();
 
   console.log('fede', pokemonList)
   console.log('base Pokemon', JSON.stringify(pokemonList, null, 2))
+  console.log('isRequestingPokemon', isRequestingPokemon)
 
   return (
-    <div className='w-full py-8'>
+    <div className='w-full'>
       <Rooster pokemonList={pokemonList} />
     </div>
   )
