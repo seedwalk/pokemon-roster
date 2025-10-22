@@ -10,13 +10,13 @@ interface PokemonListItem {
   textColor?: string;
 }
 
-interface RoosterProps {
+interface RosterProps {
   pokemonList: PokemonListItem[];
 }
 
 const CARD_WIDTH = 256; // Ancho de cada card de pokémon (w-64 = 256px)
 
-function Rooster({ pokemonList }: RoosterProps) {
+function Roster({ pokemonList }: RosterProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
@@ -176,18 +176,6 @@ function Rooster({ pokemonList }: RoosterProps) {
 
   return (
     <>
-      {/* Div flotante izquierda */}
-      <div 
-        className="fixed left-0 top-0 h-screen w-20 z-10 border-4 border-blue-500 bg-blue-200/30 cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-[600ms]"
-        onClick={scrollLeft}
-      />
-      
-      {/* Div flotante derecha */}
-      <div 
-        className="fixed right-0 top-0 h-screen w-20 z-10 border-4 border-red-500 bg-red-200/30 cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-[600ms]"
-        onClick={scrollRight}
-      />
-      
       <div className="w-full h-screen overflow-x-auto overflow-y-hidden" ref={scrollContainerRef}>
       
       <div className="flex  px-8 h-full items-center">
@@ -214,8 +202,8 @@ function Rooster({ pokemonList }: RoosterProps) {
                 backgroundOrigin: isActive ? 'border-box' : 'padding-box',
                 backgroundClip: isActive ? 'padding-box, border-box' : 'padding-box',
                 boxShadow: isActive 
-                  ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
-                  : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                    ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
+                    : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
               }}
               className="flex-shrink-0 w-64 h-[120vh] p-4 rounded-xl transition-all duration-300 flex flex-col justify-center cursor-pointer"
             >
@@ -262,5 +250,5 @@ function Rooster({ pokemonList }: RoosterProps) {
   );
 }
 
-export default Rooster;
+export default Roster;
 

@@ -1,4 +1,4 @@
-import Rooster from "./components/Rooster"
+import Roster from "./components/Roster"
 import { usePokeApi } from "./providers/PokeApiProvider"
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div className='w-full'>
-      <Rooster pokemonList={pokemonList} />
+      <Roster pokemonList={pokemonList} />
     </div>
   )
 }
