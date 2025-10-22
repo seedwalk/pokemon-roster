@@ -198,19 +198,27 @@ function Rooster({ pokemonList }: RoosterProps) {
               data-pokemon-card
               data-pokemon-id={pokemon.id}
               onClick={(e) => handleCardClick(e.currentTarget)}
+              style={{
+                transform: isActive 
+                  ? 'rotate(15deg) translateY(-40px) scale(1.15)' 
+                  : 'rotate(15deg)',
+                zIndex: isActive ? 50 : 1
+              }}
               className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 bg-white flex flex-col justify-center cursor-pointer ${
                 isActive 
-                  ? 'border-4 border-blue-500 shadow-2xl scale-110 ring-4 ring-blue-200' 
+                  ? 'border-4 border-blue-500 shadow-2xl ring-4 ring-blue-200' 
                   : 'border border-gray-300'
               }`}
             >
-              <img 
-                src={pokemon.imageUrl} 
-                alt={pokemon.name}
-                className="w-full h-64 object-contain mb-4"
-              />
-              <p className="text-sm text-gray-500">#{pokemon.id}</p>
-              <p className="text-lg capitalize font-semibold">{pokemon.name}</p>
+              <div style={{ transform: 'rotate(-15deg)' }} className="flex flex-col items-center">
+                <img 
+                  src={pokemon.imageUrl} 
+                  alt={pokemon.name}
+                  className="w-full h-64 object-contain mb-4"
+                />
+                <p className="text-sm text-gray-500">#{pokemon.id}</p>
+                <p className="text-lg capitalize font-semibold">{pokemon.name}</p>
+              </div>
             </div>
           );
         })}
