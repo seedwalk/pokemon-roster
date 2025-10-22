@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import changePlayerSound from '../../assets/changePlayer.wav';
 
 interface PokemonListItem {
   name: string;
@@ -15,30 +16,35 @@ const CARD_WIDTH = 256; // Ancho de cada card de pokémon (w-64 = 256px)
 
 function Rooster({ pokemonList }: RoosterProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const isInitialMount = useRef(true);
 
-  const scrollLeft = () => {
+  // Inicializar el audio
+  useEffect(() => {
+    audioRef.current = new Audio(changePlayerSound);
+    audioRef.current.volume = 0.3; // Volumen al 30%
+  }, []);
+
+  const scrollLeft = useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({
         left: -CARD_WIDTH,
         behavior: 'smooth'
       });
     }
-  };
+  }, []);
 
-  const scrollRight = () => {
+  const scrollRight = useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({
         left: CARD_WIDTH,
         behavior: 'smooth'
       });
     }
-  };
+  }, []);
 
   const handleCardClick = (pokemonId: string) => {
-    setSelectedCardId(pokemonId);
-    
     // Buscar la card y scrollear al centro
     if (scrollContainerRef.current) {
       const cardElement = scrollContainerRef.current.querySelector(
@@ -105,6 +111,40 @@ function Rooster({ pokemonList }: RoosterProps) {
     };
   }, [pokemonList]);
 
+  // Reproducir sonido cuando cambia la card activa
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (activeCardId && audioRef.current) {
+      audioRef.current.currentTime = 0; // Reiniciar el audio
+      audioRef.current.play().catch((error) => {
+        console.log('Error playing audio:', error);
+      });
+    }
+  }, [activeCardId]);
+
+  // Navegación con teclado
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        scrollLeft();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        scrollRight();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [scrollLeft, scrollRight]);
+
   return (
     <>
       {/* Div flotante izquierda */}
@@ -124,7 +164,6 @@ function Rooster({ pokemonList }: RoosterProps) {
       <div className="flex  px-8 h-full items-center">
         {pokemonList.map((pokemon) => {
           const isActive = activeCardId === pokemon.id;
-          const isSelected = selectedCardId === pokemon.id;
           
           return (
             <div 
@@ -133,11 +172,9 @@ function Rooster({ pokemonList }: RoosterProps) {
               data-pokemon-id={pokemon.id}
               onClick={() => handleCardClick(pokemon.id)}
               className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 bg-white flex flex-col justify-center cursor-pointer ${
-                isSelected 
-                  ? 'border-4 border-green-500 shadow-2xl scale-110 ring-4 ring-green-200' 
-                  : isActive 
-                    ? 'border-4 border-blue-400 shadow-xl scale-105' 
-                    : 'border border-gray-300'
+                isActive 
+                  ? 'border-4 border-blue-500 shadow-2xl scale-110 ring-4 ring-blue-200' 
+                  : 'border border-gray-300'
               }`}
             >
               <img 
