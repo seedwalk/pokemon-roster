@@ -192,6 +192,7 @@ function Roster({ pokemonList }: RosterProps) {
             key={`${pokemon.id}-${index}`}
             pokemon={pokemon}
             isActive={activeCardId === pokemon.id}
+            scrollContainer={scrollContainerRef.current}
           />
         ))}
       </div>

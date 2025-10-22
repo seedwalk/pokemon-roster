@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 interface PokemonListItem {
   name: string;
   url: string;
@@ -10,11 +12,44 @@ interface PokemonListItem {
 interface RosterItemProps {
   pokemon: PokemonListItem;
   isActive: boolean;
+  scrollContainer?: HTMLElement | null;
 }
 
-function RosterItem({ pokemon, isActive }: RosterItemProps) {
+function RosterItem({ pokemon, isActive, scrollContainer }: RosterItemProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const currentCard = cardRef.current;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      {
+        root: scrollContainer,
+        // Precarga elementos que están hasta 1 ancho de pantalla de distancia (horizontal)
+        rootMargin: '0px 1500px 0px 1500px',
+        threshold: 0
+      }
+    );
+
+    if (currentCard) {
+      observer.observe(currentCard);
+    }
+
+    return () => {
+      if (currentCard) {
+        observer.unobserve(currentCard);
+      }
+    };
+  }, [scrollContainer]);
+
   return (
     <div 
+      ref={cardRef}
       data-pokemon-card
       data-pokemon-id={pokemon.id}
       style={{
@@ -36,40 +71,48 @@ function RosterItem({ pokemon, isActive }: RosterItemProps) {
       }}
       className="flex-shrink-0 w-64 h-[120vh] p-4 rounded-xl transition-all duration-300 flex flex-col justify-center cursor-pointer"
     >
-      <div className="py-60 flex flex-col items-center justify-between h-full">
-        <div className=" flex items-start justify-center h-16">
-          <p 
-            style={{ 
-              transform: 'rotate(-15deg) ',
-              transformOrigin: 'center center',
-              transition: 'transform 300ms ease-in-out',
-              color: pokemon.textColor || '#000000'
-            }}
-            className="text-xl font-semibold"
-          >
-            #{pokemon.id}
-          </p>
+      {isVisible ? (
+        // Contenido completo cuando está visible
+        <div className="py-60 flex flex-col items-center justify-between h-full">
+          <div className=" flex items-start justify-center h-16">
+            <p 
+              style={{ 
+                transform: 'rotate(-15deg) ',
+                transformOrigin: 'center center',
+                transition: 'transform 300ms ease-in-out',
+                color: pokemon.textColor || '#000000'
+              }}
+              className="text-xl font-semibold"
+            >
+              #{pokemon.id}
+            </p>
+          </div>
+          <img 
+            src={pokemon.imageUrl} 
+            alt={pokemon.name}
+            style={{ transform: 'rotate(-15deg)' }}
+            className="w-full h-64 object-contain"
+          />
+          <div className="flex items-end justify-center h-16">
+            <p 
+              style={{ 
+                transform: `rotate(-90deg) ${isActive ? 'scale(1.2)' : 'scale(1)'}`,
+                transformOrigin: 'center center',
+                transition: 'transform 300ms ease-in-out',
+                color: pokemon.textColor || '#000000'
+              }}
+              className="text-2xl capitalize font-bold whitespace-nowrap"
+            >
+              {pokemon.name}
+            </p>
+          </div>
         </div>
-        <img 
-          src={pokemon.imageUrl} 
-          alt={pokemon.name}
-          style={{ transform: 'rotate(-15deg)' }}
-          className="w-full h-64 object-contain"
-        />
-        <div className="flex items-end justify-center h-16">
-          <p 
-            style={{ 
-              transform: `rotate(-90deg) ${isActive ? 'scale(1.2)' : 'scale(1)'}`,
-              transformOrigin: 'center center',
-              transition: 'transform 300ms ease-in-out',
-              color: pokemon.textColor || '#000000'
-            }}
-            className="text-2xl capitalize font-bold whitespace-nowrap"
-          >
-            {pokemon.name}
-          </p>
+      ) : (
+        // Placeholder/skeleton cuando está fuera de vista
+        <div className="py-60 flex flex-col items-center justify-between h-full">
+          {/* Mantiene el espacio pero no carga contenido pesado */}
         </div>
-      </div>
+      )}
     </div>
   );
 }
