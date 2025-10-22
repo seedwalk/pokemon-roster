@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useState, useTransition, ReactNode } from "react";
 import { extractPokemonId, getPokemonImageUrl } from "../../utils";
+import { getBackgroundFromImageURL } from "../../utils/extractDominatColor";
 
 interface PokemonListItem {
   name: string;
   url: string;
   id: string;
   imageUrl: string;
+  background?: string;
 }
 
 interface PokeApiContextType {
@@ -35,7 +37,26 @@ export const PokeApiProvider = ({ children }: PokeApiProviderProps) => {
           imageUrl: getPokemonImageUrl(id)
         };
       });
-      setPokemonList(pokemonsWithId);
+      
+      // Extraer el background de cada Pokémon
+      const pokemonsWithBackground = await Promise.all(
+        pokemonsWithId.map(async (pokemon: PokemonListItem) => {
+          try {
+            const background = await getBackgroundFromImageURL(pokemon.imageUrl, {
+              maxDimension: 150,
+              sampleStep: 3,
+              quantBits: 4,
+              asGradient: true
+            });
+            return { ...pokemon, background };
+          } catch (e) {
+            console.warn(`No se pudo extraer el color para ${pokemon.name}:`, e);
+            return { ...pokemon, background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)' };
+          }
+        })
+      );
+      
+      setPokemonList(pokemonsWithBackground);
     } catch (e) {
       console.error(e);
     }

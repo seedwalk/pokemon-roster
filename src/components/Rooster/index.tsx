@@ -6,6 +6,7 @@ interface PokemonListItem {
   url: string;
   id: string;
   imageUrl: string;
+  background?: string;
 }
 
 interface RoosterProps {
@@ -202,22 +203,46 @@ function Rooster({ pokemonList }: RoosterProps) {
                 transform: isActive 
                   ? 'rotate(15deg) translateY(-40px) scale(1.15)' 
                   : 'rotate(15deg)',
-                zIndex: isActive ? 50 : 1
+                zIndex: isActive ? 50 : 1,
+                background: pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
               }}
-              className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 bg-white flex flex-col justify-center cursor-pointer ${
+              className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 flex flex-col justify-center cursor-pointer ${
                 isActive 
                   ? 'border-4 border-blue-500 shadow-2xl ring-4 ring-blue-200' 
                   : 'border border-gray-300'
               }`}
             >
-              <div style={{ transform: 'rotate(-15deg)' }} className="flex flex-col items-center">
+              <div className="py-60 flex flex-col items-center justify-between h-full">
+                <div className=" flex items-start justify-center h-16">
+                  <p 
+                    style={{ 
+                      transform: 'rotate(-15deg) ',
+                      transformOrigin: 'center center',
+                      transition: 'transform 300ms ease-in-out'
+                    }}
+                    className="text-xl font-semibold text-gray-600"
+                  >
+                    #{pokemon.id}
+                  </p>
+                </div>
                 <img 
                   src={pokemon.imageUrl} 
                   alt={pokemon.name}
-                  className="w-full h-64 object-contain mb-4"
+                  style={{ transform: 'rotate(-15deg)' }}
+                  className="w-full h-64 object-contain"
                 />
-                <p className="text-sm text-gray-500">#{pokemon.id}</p>
-                <p className="text-lg capitalize font-semibold">{pokemon.name}</p>
+                <div className="flex items-end justify-center h-16">
+                  <p 
+                    style={{ 
+                      transform: `rotate(-90deg) ${isActive ? 'scale(1.2)' : 'scale(1)'}`,
+                      transformOrigin: 'center center',
+                      transition: 'transform 300ms ease-in-out'
+                    }}
+                    className="text-2xl capitalize font-bold whitespace-nowrap"
+                  >
+                    {pokemon.name}
+                  </p>
+                </div>
               </div>
             </div>
           );
