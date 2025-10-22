@@ -7,6 +7,7 @@ interface PokemonListItem {
   id: string;
   imageUrl: string;
   background?: string;
+  textColor?: string;
 }
 
 interface RoosterProps {
@@ -218,9 +219,10 @@ function Rooster({ pokemonList }: RoosterProps) {
                     style={{ 
                       transform: 'rotate(-15deg) ',
                       transformOrigin: 'center center',
-                      transition: 'transform 300ms ease-in-out'
+                      transition: 'transform 300ms ease-in-out',
+                      color: pokemon.textColor || '#000000'
                     }}
-                    className="text-xl font-semibold text-gray-600"
+                    className="text-xl font-semibold"
                   >
                     #{pokemon.id}
                   </p>
@@ -236,7 +238,8 @@ function Rooster({ pokemonList }: RoosterProps) {
                     style={{ 
                       transform: `rotate(-90deg) ${isActive ? 'scale(1.2)' : 'scale(1)'}`,
                       transformOrigin: 'center center',
-                      transition: 'transform 300ms ease-in-out'
+                      transition: 'transform 300ms ease-in-out',
+                      color: pokemon.textColor || '#000000'
                     }}
                     className="text-2xl capitalize font-bold whitespace-nowrap"
                   >

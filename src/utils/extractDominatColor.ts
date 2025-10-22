@@ -62,6 +62,32 @@ type Options = {
   }
   
   /**
+   * Calcula la luminosidad relativa de un color hex según WCAG.
+   * Retorna un valor entre 0 (negro) y 1 (blanco).
+   */
+  function getLuminance(hex: string): number {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+  
+    const rsRGB = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+    const gsRGB = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+    const bsRGB = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+  
+    return 0.2126 * rsRGB + 0.7152 * gsRGB + 0.0722 * bsRGB;
+  }
+
+  /**
+   * Determina si el texto debe ser negro o blanco basándose en el color de fondo.
+   * Retorna '#000000' para texto negro o '#ffffff' para texto blanco.
+   */
+  export function getContrastColor(hex: string): string {
+    const luminance = getLuminance(hex);
+    // Si la luminosidad es mayor a 0.5, usar texto oscuro; si no, texto claro
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  /**
    * Calcula el color dominante de una imagen remota y devuelve un background CSS.
    * Si asGradient=true, devuelve un linear-gradient; si no, un color sólido (#rrggbb).
    * IMPORTANTE: la URL debe permitir CORS para poder leer el canvas.
@@ -81,6 +107,32 @@ type Options = {
       return `linear-gradient(180deg, ${dominantHex} 0%, ${darker} 100%)`;
     }
     return dominantHex;
+  }
+
+  /**
+   * Calcula el color dominante y también devuelve el color de texto recomendado.
+   * Retorna un objeto con background y textColor.
+   */
+  export async function getBackgroundAndTextColor(
+    url: string,
+    options?: Options
+  ): Promise<{ background: string; textColor: string }> {
+    const opts = { ...defaults, ...(options || {}) };
+  
+    const img = await loadImage(url);
+    const { dominantHex } = extractDominant(img, opts);
+  
+    const textColor = getContrastColor(dominantHex);
+    let background: string;
+  
+    if (opts.asGradient) {
+      const darker = darkenHex(dominantHex, 0.22);
+      background = `linear-gradient(180deg, ${dominantHex} 0%, ${darker} 100%)`;
+    } else {
+      background = dominantHex;
+    }
+  
+    return { background, textColor };
   }
   
   async function loadImage(src: string): Promise<HTMLImageElement> {
