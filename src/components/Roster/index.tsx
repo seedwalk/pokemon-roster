@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import changePlayerSound from '../../assets/changePlayer.wav';
+import RosterItem from './roster-item';
 
 interface PokemonListItem {
   name: string;
@@ -59,24 +60,28 @@ function Roster({ pokemonList }: RosterProps) {
     }
   }, []);
 
-  const handleCardClick = (clickedElement: HTMLDivElement) => {
+  // Event delegation: manejar clicks en el contenedor padre
+  const handleContainerClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // Buscar si el click fue en una tarjeta o dentro de ella
+    const clickedCard = (event.target as HTMLElement).closest('[data-pokemon-card]') as HTMLDivElement;
+    
+    if (!clickedCard || !scrollContainerRef.current) return;
+    
     // Scrollear la card clickeada al centro
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const containerRect = container.getBoundingClientRect();
-      const cardRect = clickedElement.getBoundingClientRect();
-      
-      // Calcular el scroll necesario para centrar la card
-      const containerCenter = containerRect.width / 2;
-      const cardCenter = cardRect.left - containerRect.left + cardRect.width / 2;
-      const scrollAmount = cardCenter - containerCenter;
-      
-      container.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+    const container = scrollContainerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const cardRect = clickedCard.getBoundingClientRect();
+    
+    // Calcular el scroll necesario para centrar la card
+    const containerCenter = containerRect.width / 2;
+    const cardCenter = cardRect.left - containerRect.left + cardRect.width / 2;
+    const scrollAmount = cardCenter - containerCenter;
+    
+    container.scrollBy({
+      left: scrollAmount,
+      behavior: 'smooth'
+    });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -178,72 +183,17 @@ function Roster({ pokemonList }: RosterProps) {
     <>
       <div className="w-full h-screen overflow-hidden" ref={scrollContainerRef}>
       
-      <div className="flex  px-8 h-full items-center">
-        {infiniteList.map((pokemon, index) => {
-          const isActive = activeCardId === pokemon.id;
-          
-          return (
-            <div 
-              key={`${pokemon.id}-${index}`}
-              data-pokemon-card
-              data-pokemon-id={pokemon.id}
-              onClick={(e) => handleCardClick(e.currentTarget)}
-              style={{
-                transform: isActive 
-                  ? 'rotate(15deg) translateY(-40px) scale(1.15)' 
-                  : 'rotate(15deg)',
-                zIndex: isActive ? 50 : 1,
-                border: isActive 
-                  ? '2px solid transparent'
-                  : '1px solid rgba(255, 255, 255, 0.2)',
-                backgroundImage: isActive
-                  ? `${pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'}, linear-gradient(135deg, #667eea 0%, #764ba2 15%, #f093fb 30%, #4facfe 45%, #00f2fe 60%, #43e97b 75%, #fa709a 90%, #fee140 100%)`
-                  : pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
-                backgroundOrigin: isActive ? 'border-box' : 'padding-box',
-                backgroundClip: isActive ? 'padding-box, border-box' : 'padding-box',
-                boxShadow: isActive 
-                    ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
-                    : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-              }}
-              className="flex-shrink-0 w-64 h-[120vh] p-4 rounded-xl transition-all duration-300 flex flex-col justify-center cursor-pointer"
-            >
-              <div className="py-60 flex flex-col items-center justify-between h-full">
-                <div className=" flex items-start justify-center h-16">
-                  <p 
-                    style={{ 
-                      transform: 'rotate(-15deg) ',
-                      transformOrigin: 'center center',
-                      transition: 'transform 300ms ease-in-out',
-                      color: pokemon.textColor || '#000000'
-                    }}
-                    className="text-xl font-semibold"
-                  >
-                    #{pokemon.id}
-                  </p>
-                </div>
-                <img 
-                  src={pokemon.imageUrl} 
-                  alt={pokemon.name}
-                  style={{ transform: 'rotate(-15deg)' }}
-                  className="w-full h-64 object-contain"
-                />
-                <div className="flex items-end justify-center h-16">
-                  <p 
-                    style={{ 
-                      transform: `rotate(-90deg) ${isActive ? 'scale(1.2)' : 'scale(1)'}`,
-                      transformOrigin: 'center center',
-                      transition: 'transform 300ms ease-in-out',
-                      color: pokemon.textColor || '#000000'
-                    }}
-                    className="text-2xl capitalize font-bold whitespace-nowrap"
-                  >
-                    {pokemon.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div 
+        className="flex  px-8 h-full items-center"
+        onClick={handleContainerClick}
+      >
+        {infiniteList.map((pokemon, index) => (
+          <RosterItem 
+            key={`${pokemon.id}-${index}`}
+            pokemon={pokemon}
+            isActive={activeCardId === pokemon.id}
+          />
+        ))}
       </div>
       </div>
     </>
