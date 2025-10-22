@@ -19,12 +19,25 @@ function Rooster({ pokemonList }: RoosterProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const isInitialMount = useRef(true);
+  const isJumping = useRef(false);
+
+  // Crear lista infinita: [clones finales, originales, clones iniciales]
+  const infiniteList = [...pokemonList, ...pokemonList, ...pokemonList];
 
   // Inicializar el audio
   useEffect(() => {
     audioRef.current = new Audio(changePlayerSound);
     audioRef.current.volume = 0.3; // Volumen al 30%
   }, []);
+
+  // Inicializar scroll en la sección del medio
+  useEffect(() => {
+    if (scrollContainerRef.current && pokemonList.length > 0) {
+      const container = scrollContainerRef.current;
+      const initialScroll = pokemonList.length * CARD_WIDTH;
+      container.scrollLeft = initialScroll;
+    }
+  }, [pokemonList]);
 
   const scrollLeft = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -44,36 +57,50 @@ function Rooster({ pokemonList }: RoosterProps) {
     }
   }, []);
 
-  const handleCardClick = (pokemonId: string) => {
-    // Buscar la card y scrollear al centro
+  const handleCardClick = (clickedElement: HTMLDivElement) => {
+    // Scrollear la card clickeada al centro
     if (scrollContainerRef.current) {
-      const cardElement = scrollContainerRef.current.querySelector(
-        `[data-pokemon-id="${pokemonId}"]`
-      );
+      const container = scrollContainerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = clickedElement.getBoundingClientRect();
       
-      if (cardElement) {
-        const container = scrollContainerRef.current;
-        const containerRect = container.getBoundingClientRect();
-        const cardRect = cardElement.getBoundingClientRect();
-        
-        // Calcular el scroll necesario para centrar la card
-        const containerCenter = containerRect.width / 2;
-        const cardCenter = cardRect.left - containerRect.left + cardRect.width / 2;
-        const scrollAmount = cardCenter - containerCenter;
-        
-        container.scrollBy({
-          left: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
+      // Calcular el scroll necesario para centrar la card
+      const containerCenter = containerRect.width / 2;
+      const cardCenter = cardRect.left - containerRect.left + cardRect.width / 2;
+      const scrollAmount = cardCenter - containerCenter;
+      
+      container.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
     }
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollContainerRef.current) return;
+      if (!scrollContainerRef.current || isJumping.current) return;
 
       const container = scrollContainerRef.current;
+      const scrollLeft = container.scrollLeft;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      
+      // Detectar límites y saltar
+      const threshold = CARD_WIDTH * 2;
+      const sectionWidth = pokemonList.length * CARD_WIDTH;
+      
+      if (scrollLeft < threshold) {
+        // Cerca del inicio, saltar al final del segundo set
+        isJumping.current = true;
+        container.scrollLeft = scrollLeft + sectionWidth;
+        setTimeout(() => { isJumping.current = false; }, 50);
+      } else if (scrollLeft > maxScroll - threshold) {
+        // Cerca del final, saltar al inicio del segundo set
+        isJumping.current = true;
+        container.scrollLeft = scrollLeft - sectionWidth;
+        setTimeout(() => { isJumping.current = false; }, 50);
+      }
+
+      // Encontrar card activa en el centro
       const containerRect = container.getBoundingClientRect();
       const centerX = containerRect.left + containerRect.width / 2;
 
@@ -162,15 +189,15 @@ function Rooster({ pokemonList }: RoosterProps) {
       <div className="w-full h-screen overflow-x-auto overflow-y-hidden" ref={scrollContainerRef}>
       
       <div className="flex  px-8 h-full items-center">
-        {pokemonList.map((pokemon) => {
+        {infiniteList.map((pokemon, index) => {
           const isActive = activeCardId === pokemon.id;
           
           return (
             <div 
-              key={pokemon.id}
+              key={`${pokemon.id}-${index}`}
               data-pokemon-card
               data-pokemon-id={pokemon.id}
-              onClick={() => handleCardClick(pokemon.id)}
+              onClick={(e) => handleCardClick(e.currentTarget)}
               className={`flex-shrink-0 w-64 h-full p-4 rounded-lg hover:shadow-lg transition-all duration-300 bg-white flex flex-col justify-center cursor-pointer ${
                 isActive 
                   ? 'border-4 border-blue-500 shadow-2xl scale-110 ring-4 ring-blue-200' 

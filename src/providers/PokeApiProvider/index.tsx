@@ -25,7 +25,7 @@ export const PokeApiProvider = ({ children }: PokeApiProviderProps) => {
 
   const requestPokemons = () => setRequestingPokemons(async () => {
     try {
-      const request = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
+      const request = await fetch('https://pokeapi.co/api/v2/pokemon?limit=150&offset=0');
       const { results } = await request.json();
       const pokemonsWithId = results.map((pokemon: { name: string; url: string }) => {
         const id = extractPokemonId(pokemon.url);
