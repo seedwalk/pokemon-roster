@@ -166,7 +166,11 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
           backgroundClip: isActive ? 'padding-box, border-box' : 'padding-box',
           boxShadow: isActive 
             ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none'
         }}
         className="flex-shrink-0 h-[120vh] p-4 transition-all duration-500 ease-in-out flex flex-col justify-center cursor-pointer"
       >
