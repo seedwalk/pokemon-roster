@@ -47,6 +47,7 @@ function Roster({ pokemonList }: RosterProps) {
   const [openPokemonIndex, setOpenPokemonIndex] = useState<number | null>(null);
   const isInitialMount = useRef(true);
   const isJumping = useRef(false);
+  const savedScrollPosition = useRef<number>(0);
 
   // Crear lista infinita: [clones finales, originales, clones iniciales]
   const infiniteList = [...pokemonList, ...pokemonList, ...pokemonList];
@@ -211,6 +212,14 @@ function Roster({ pokemonList }: RosterProps) {
         if (event.key === 'Escape') {
           event.preventDefault();
           setOpenPokemonIndex(null);
+          
+          // Restaurar la posición del scroll guardada con animación suave
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+              left: savedScrollPosition.current,
+              behavior: 'smooth'
+            });
+          }
         }
         return;
       }
@@ -227,6 +236,10 @@ function Roster({ pokemonList }: RosterProps) {
         // Necesitamos encontrar el índice del elemento activo más cercano
         if (activeCardId && scrollContainerRef.current) {
           const container = scrollContainerRef.current;
+          
+          // Guardar la posición actual del scroll antes de abrir
+          savedScrollPosition.current = container.scrollLeft;
+          
           const containerRect = container.getBoundingClientRect();
           const centerX = containerRect.left + containerRect.width / 2;
           
