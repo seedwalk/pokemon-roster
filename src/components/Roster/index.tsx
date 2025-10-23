@@ -281,9 +281,6 @@ function Roster({ pokemonList }: RosterProps) {
       <div 
         className="w-full h-screen overflow-hidden" 
         ref={scrollContainerRef}
-        style={{
-          overflowX: openPokemonIndex !== null ? 'hidden' : 'auto'
-        }}
       >
       
       <div 
