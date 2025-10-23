@@ -1,73 +1,116 @@
-# React + TypeScript + Vite
+# 🎮 Interactive Pokédex
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern and interactive Pokédex built with React, TypeScript, and Vite. This application displays the first 150 Pokémon from the first generation in an infinite carousel with visual and sound effects.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19.1.1-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-7.1.7-646CFF?logo=vite)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.14-06B6D4?logo=tailwindcss)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **🔄 Infinite Carousel**: Continuous navigation without end between Pokémon
+- **🎨 Dynamic Colors**: Each card extracts the dominant color from the Pokémon's image to create unique gradient backgrounds
+- **🎵 Sound Effects**: Sound playback when changing Pokémon
+- **⌨️ Keyboard Navigation**: 
+  - `←` `→` - Navigate between Pokémon
+  - `Enter` - View active Pokémon details
+  - `Escape` - Close details view
+- **🖱️ Mouse Navigation**: Click on any card to center it
+- **📱 Responsive Design**: Interface adaptable to different screen sizes
+- **🎯 Spotlight View**: Active card with scale and brightness visual effects
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Installation
 
-## Expanding the ESLint configuration
+```bash
+# Clone the repository
+git clone https://github.com/seedwalk/pokemon-roster
+cd pokemon-roster
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Install dependencies
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📦 Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev      # Start development server
+npm run build    # Build the application for production
+npm run preview  # Preview production build
+npm run lint     # Run linter
 ```
+
+## 🛠️ Technologies
+
+- **React 19** - User interface library
+- **TypeScript** - Typed superset of JavaScript
+- **Vite** - Ultra-fast build tool and dev server
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **PokeAPI** - Pokémon REST API
+
+## 🏗️ Project Structure
+
+```
+src/
+├── components/
+│   └── Roster/              # Main carousel component
+│       ├── index.tsx        # Infinite carousel logic
+│       └── roster-item.tsx  # Individual Pokémon card
+├── providers/
+│   └── PokeApiProvider/     # Provider for PokeAPI data
+│       └── index.tsx
+├── utils/
+│   ├── extractDominatColor.ts  # Dominant color extraction
+│   └── index.ts                # General utilities
+├── assets/
+│   └── changePlayer.wav     # Sound effect
+├── App.tsx                  # Root component
+└── main.tsx                 # Entry point
+```
+
+## 🎨 Technical Features
+
+### Infinite Carousel
+The carousel implements an infinite scroll system by triplicating the Pokémon list and detecting boundaries to perform invisible "jumps" that create the illusion of infinite continuity.
+
+### Color Extraction
+Each Pokémon has its own color scheme extracted from its official sprite using a color quantization algorithm that:
+- Resizes the image to optimize performance
+- Samples pixels at regular intervals
+- Groups similar colors through quantization
+- Generates custom gradients for each Pokémon
+
+### Navigation System
+- **Event Delegation**: A single listener on the container to handle clicks on all cards
+- **Active Card Detection**: Real-time calculation of the card closest to the viewport center
+- **Smooth Scroll**: Animated transitions when navigating between Pokémon
+
+## 🎯 How to Use
+
+1. The application starts by displaying the Pokémon carousel
+2. Use keyboard arrows or click on a card to navigate
+3. Press `Enter` or click on the active card to view details
+4. Press `Escape` to return to the carousel
+5. Enjoy the visual and sound effects while exploring
+
+## 📝 Notes
+
+- The application loads the first 150 Pokémon (First generation)
+- Colors are dynamically extracted when loading the application
+- Sound is configured at 30% of maximum volume
+- The carousel maintains scroll state when opening and closing details
+
+## 🤝 Contributing
+
+Contributions are welcome. If you find any bugs or have any suggestions, please open an issue or submit a pull request.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+Made with ❤️ using React and the PokeAPI
