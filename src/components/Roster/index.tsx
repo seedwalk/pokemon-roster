@@ -16,11 +16,35 @@ interface RosterProps {
 }
 
 const CARD_WIDTH = 256; // Ancho de cada card de pokémon (w-64 = 256px)
+const PADDING_LEFT = 32; // px-8 en tailwind = 32px
+
+/**
+ * Calcula la posición del scroll necesaria para centrar el elemento expandido
+ * @param container - El contenedor con scroll
+ * @param openCard - El elemento que se va a expandir
+ * @returns La posición del scroll necesaria
+ */
+function calculateScrollPosition(
+  container: HTMLDivElement,
+  openCard: HTMLElement
+): number {
+  const containerRect = container.getBoundingClientRect();
+  const cardRect = openCard.getBoundingClientRect();
+  
+  // Calcular dónde está el borde izquierdo del elemento en el scroll total
+  const cardLeftRelativeToContainer = cardRect.left - containerRect.left;
+  const currentScrollPosition = container.scrollLeft;
+  const cardAbsoluteLeft = currentScrollPosition + cardLeftRelativeToContainer;
+  
+  // Compensar el padding y ajustar para que quede bien centrado
+  return cardAbsoluteLeft - PADDING_LEFT + CARD_WIDTH;
+}
 
 function Roster({ pokemonList }: RosterProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [openPokemonIndex, setOpenPokemonIndex] = useState<number | null>(null);
   const isInitialMount = useRef(true);
   const isJumping = useRef(false);
 
@@ -62,6 +86,9 @@ function Roster({ pokemonList }: RosterProps) {
 
   // Event delegation: manejar clicks en el contenedor padre
   const handleContainerClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // Si hay un pokemon abierto, no hacer nada
+    if (openPokemonIndex !== null) return;
+
     // Buscar si el click fue en una tarjeta o dentro de ella
     const clickedCard = (event.target as HTMLElement).closest('[data-pokemon-card]') as HTMLDivElement;
     
@@ -81,11 +108,12 @@ function Roster({ pokemonList }: RosterProps) {
       left: scrollAmount,
       behavior: 'smooth'
     });
-  }, []);
+  }, [openPokemonIndex]);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollContainerRef.current || isJumping.current) return;
+      // Si hay un pokemon abierto, no hacer nada
+      if (!scrollContainerRef.current || isJumping.current || openPokemonIndex !== null) return;
 
       const container = scrollContainerRef.current;
       const scrollLeft = container.scrollLeft;
@@ -143,32 +171,88 @@ function Roster({ pokemonList }: RosterProps) {
         container.removeEventListener('scroll', handleScroll);
       }
     };
-  }, [pokemonList]);
+  }, [pokemonList, openPokemonIndex]);
 
-  // Reproducir sonido cuando cambia la card activa
+  // Reproducir sonido cuando cambia la card activa (solo si no hay ninguna abierta)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
 
-    if (activeCardId && audioRef.current) {
+    if (activeCardId && audioRef.current && openPokemonIndex === null) {
       audioRef.current.currentTime = 0; // Reiniciar el audio
       audioRef.current.play().catch((error) => {
         console.log('Error playing audio:', error);
       });
     }
-  }, [activeCardId]);
+  }, [activeCardId, openPokemonIndex]);
+
+  // Ajustar scroll cuando se abre para compensar la expansión a 100vw
+  useEffect(() => {
+    if (openPokemonIndex === null || !scrollContainerRef.current) return;
+    
+    const container = scrollContainerRef.current;
+    
+    // Buscar el elemento específico por su índice único
+    const openCard = container.querySelector<HTMLElement>(`[data-pokemon-index="${openPokemonIndex}"]`);
+    
+    if (!openCard) return;
+    
+    // Calcular y aplicar la nueva posición del scroll
+    container.scrollLeft = calculateScrollPosition(container, openCard);
+  }, [openPokemonIndex]);
 
   // Navegación con teclado
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Si hay un pokemon abierto, solo permitir Escape
+      if (openPokemonIndex !== null) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setOpenPokemonIndex(null);
+        }
+        return;
+      }
+
+      // Navegación normal cuando no hay nada abierto
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
         scrollLeft();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         scrollRight();
+      } else if (event.key === 'Enter') {
+        // Abrir el pokemon activo en pantalla completa
+        // Necesitamos encontrar el índice del elemento activo más cercano
+        if (activeCardId && scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const containerRect = container.getBoundingClientRect();
+          const centerX = containerRect.left + containerRect.width / 2;
+          
+          const activeCards = container.querySelectorAll<HTMLElement>(`[data-pokemon-id="${activeCardId}"]`);
+          let closestIndex: number | null = null;
+          let closestDistance = Infinity;
+          
+          activeCards.forEach((card) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenterX = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(centerX - cardCenterX);
+            
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              const indexAttr = card.getAttribute('data-pokemon-index');
+              if (indexAttr) {
+                closestIndex = parseInt(indexAttr, 10);
+              }
+            }
+          });
+          
+          if (closestIndex !== null) {
+            event.preventDefault();
+            setOpenPokemonIndex(closestIndex);
+          }
+        }
       }
     };
 
@@ -177,11 +261,17 @@ function Roster({ pokemonList }: RosterProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [scrollLeft, scrollRight]);
+  }, [scrollLeft, scrollRight, activeCardId, openPokemonIndex]);
 
   return (
     <>
-      <div className="w-full h-screen overflow-hidden" ref={scrollContainerRef}>
+      <div 
+        className="w-full h-screen overflow-hidden" 
+        ref={scrollContainerRef}
+        style={{
+          overflowX: openPokemonIndex !== null ? 'hidden' : 'auto'
+        }}
+      >
       
       <div 
         className="flex  px-8 h-full items-center"
@@ -191,7 +281,9 @@ function Roster({ pokemonList }: RosterProps) {
           <RosterItem 
             key={`${pokemon.id}-${index}`}
             pokemon={pokemon}
-            isActive={activeCardId === pokemon.id}
+            pokemonIndex={index}
+            isActive={openPokemonIndex === null && activeCardId === pokemon.id}
+            isOpen={openPokemonIndex === index}
             scrollContainer={scrollContainerRef.current}
           />
         ))}
