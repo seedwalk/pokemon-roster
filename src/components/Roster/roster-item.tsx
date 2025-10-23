@@ -158,7 +158,7 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }
             ? '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.5), 0 0 80px rgba(102, 126, 234, 0.4), 0 0 40px rgba(250, 112, 154, 0.3), 0 0 20px rgba(67, 233, 123, 0.3), inset 0 1px 10px rgba(255, 255, 255, 0.4)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}
-        className="flex-shrink-0 h-[120vh] p-4 rounded-xl transition-all duration-500 ease-in-out flex flex-col justify-center cursor-pointer"
+        className="flex-shrink-0 h-[120vh] p-4 transition-all duration-500 ease-in-out flex flex-col justify-center cursor-pointer"
       >
         {isOpen && isLoadingDetails ? (
           // Mostrar loader mientras carga
@@ -167,10 +167,14 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }
           </div>
         ) : isOpen && pokemonDetails ? (
           // Mostrar detalles cuando está cargado
-          <div className="py-8 px-8 flex flex-col items-center h-full overflow-y-auto">
+          <div className="py-8 px-8 flex flex-col items-center h-full">
             <div className="flex flex-col items-center mb-8">
               <p 
-                style={{ color: pokemon.textColor || '#000000' }}
+                style={{ 
+                  color: pokemon.textColor || '#000000',
+                  opacity: 0,
+                  transition: 'opacity 500ms ease-out'
+                }}
                 className="text-3xl font-semibold mb-2"
               >
                 #{pokemon.id}
@@ -188,14 +192,15 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }
               </p>
             </div>
 
-            <div className="w-full max-w-2xl">
-              <h3 
-                style={{ color: pokemon.textColor || '#000000' }}
-                className="text-2xl font-bold mb-6 text-center"
-              >
-                Stats
-              </h3>
-              <div className="space-y-4">
+            <h3 
+              style={{ color: pokemon.textColor || '#000000' }}
+              className="text-2xl font-bold mb-6 text-center"
+            >
+              Stats
+            </h3>
+
+            <div className="w-full max-w-2xl flex-1 overflow-y-auto px-6">
+              <div className="space-y-4 pb-8">
                 {pokemonDetails.stats.map((stat: any, index: number) => (
                   <div key={index} className="flex flex-col">
                     <div className="flex justify-between mb-1">
