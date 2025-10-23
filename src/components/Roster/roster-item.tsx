@@ -15,9 +15,10 @@ interface RosterItemProps {
   isActive: boolean;
   isOpen: boolean;
   scrollContainer?: HTMLElement | null;
+  onDoubleClick?: (pokemonIndex: number) => void;
 }
 
-function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }: RosterItemProps) {
+function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, onDoubleClick }: RosterItemProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldBeFixed, setShouldBeFixed] = useState(false);
@@ -99,6 +100,14 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }
     };
   }, [scrollContainer]);
 
+  // Manejar doble click solo si está activo
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    if (isActive && onDoubleClick && !isOpen) {
+      e.stopPropagation();
+      onDoubleClick(pokemonIndex);
+    }
+  };
+
   return (
     <>
       <style>{`
@@ -137,6 +146,7 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer }
         data-pokemon-card
         data-pokemon-id={pokemon.id}
         data-pokemon-index={pokemonIndex}
+        onDoubleClick={handleDoubleClick}
         style={{
           position: shouldBeFixed ? 'fixed' : 'static',
           left: shouldBeFixed ? 0 : 'auto',

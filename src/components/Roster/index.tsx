@@ -111,6 +111,18 @@ function Roster({ pokemonList }: RosterProps) {
     });
   }, [openPokemonIndex]);
 
+  // Manejar doble click en una card activa para abrirla
+  const handleCardDoubleClick = useCallback((pokemonIndex: number) => {
+    // Solo abrir si no hay ningún pokemon abierto y el scroll container existe
+    if (openPokemonIndex !== null || !scrollContainerRef.current) return;
+    
+    // Guardar la posición actual del scroll antes de abrir
+    savedScrollPosition.current = scrollContainerRef.current.scrollLeft;
+    
+    // Abrir el pokemon
+    setOpenPokemonIndex(pokemonIndex);
+  }, [openPokemonIndex]);
+
   useEffect(() => {
     const handleScroll = () => {
       // Si hay un pokemon abierto, no hacer nada
@@ -295,6 +307,7 @@ function Roster({ pokemonList }: RosterProps) {
             isActive={openPokemonIndex === null && activeCardId === pokemon.id}
             isOpen={openPokemonIndex === index}
             scrollContainer={scrollContainerRef.current}
+            onDoubleClick={handleCardDoubleClick}
           />
         ))}
       </div>
