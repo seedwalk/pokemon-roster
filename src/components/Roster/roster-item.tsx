@@ -18,6 +18,8 @@ interface RosterItemProps {
   onDoubleClick?: (pokemonIndex: number) => void;
 }
 
+type TabType = 'stats' | 'abilities' | 'moves' | 'types';
+
 function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, onDoubleClick }: RosterItemProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -25,6 +27,7 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
   const [pokemonDetails, setPokemonDetails] = useState<any>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('stats');
 
   // Cargar detalles del Pokémon cuando se abre
   useEffect(() => {
@@ -67,8 +70,9 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
       
       return () => clearTimeout(timer);
     } else {
-      // Cuando se cierra, inmediatamente quitar el fixed
+      // Cuando se cierra, inmediatamente quitar el fixed y resetear tab
       setShouldBeFixed(false);
+      setActiveTab('stats');
     }
   }, [isOpen]);
 
@@ -105,6 +109,140 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
     if (isActive && onDoubleClick && !isOpen) {
       e.stopPropagation();
       onDoubleClick(pokemonIndex);
+    }
+  };
+
+  // Renderizar contenido según el tab activo
+  const renderTabContent = () => {
+    if (!pokemonDetails) return null;
+
+    switch (activeTab) {
+      case 'stats':
+        return (
+          <div className="space-y-4 pb-8">
+            {pokemonDetails.stats.map((stat: any, index: number) => (
+              <div key={index} className="flex flex-col">
+                <div className="flex justify-between mb-1">
+                  <span 
+                    style={{ color: pokemon.textColor || '#000000' }}
+                    className="text-lg font-semibold capitalize"
+                  >
+                    {stat.stat.name.replace('-', ' ')}
+                  </span>
+                  <span 
+                    style={{ color: pokemon.textColor || '#000000' }}
+                    className="text-lg font-bold"
+                  >
+                    {stat.base_stat}
+                  </span>
+                </div>
+                <div className="w-full h-6 bg-white/30 rounded-full overflow-hidden">
+                  <div 
+                    style={{
+                      width: animateStats ? `${Math.min((stat.base_stat / 130) * 100, 100)}%` : '0%',
+                      transition: 'width 1s ease-out',
+                      transitionDelay: `${index * 0.1}s`,
+                      backgroundColor: pokemon.textColor || '#000000',
+                      opacity: 0.7
+                    }}
+                    className="h-full rounded-full"
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'abilities':
+        return (
+          <div className="space-y-4 pb-8">
+            {pokemonDetails.abilities.map((ability: any, index: number) => (
+              <div 
+                key={index} 
+                className="p-4 bg-white/20 rounded-lg backdrop-blur-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <span 
+                    style={{ color: pokemon.textColor || '#000000' }}
+                    className="text-xl font-bold capitalize"
+                  >
+                    {ability.ability.name.replace('-', ' ')}
+                  </span>
+                  {ability.is_hidden && (
+                    <span 
+                      style={{ 
+                        color: pokemon.textColor || '#000000',
+                        opacity: 0.7
+                      }}
+                      className="text-sm font-semibold px-3 py-1 bg-white/30 rounded-full"
+                    >
+                      Hidden
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'moves':
+        return (
+          <div className="space-y-2 pb-8">
+            {pokemonDetails.moves.slice(0, 20).map((move: any, index: number) => (
+              <div 
+                key={index} 
+                className="p-3 bg-white/15 rounded-lg backdrop-blur-sm"
+              >
+                <span 
+                  style={{ color: pokemon.textColor || '#000000' }}
+                  className="text-base font-semibold capitalize"
+                >
+                  {move.move.name.replace('-', ' ')}
+                </span>
+              </div>
+            ))}
+            {pokemonDetails.moves.length > 20 && (
+              <p 
+                style={{ color: pokemon.textColor || '#000000', opacity: 0.6 }}
+                className="text-center text-sm pt-2"
+              >
+                + {pokemonDetails.moves.length - 20} more moves
+              </p>
+            )}
+          </div>
+        );
+
+      case 'types':
+        return (
+          <div className="space-y-6 pb-8">
+            {pokemonDetails.types.map((type: any, index: number) => (
+              <div 
+                key={index} 
+                className="p-6 bg-white/20 rounded-xl backdrop-blur-sm"
+              >
+                <div className="flex items-center justify-center">
+                  <span 
+                    style={{ color: pokemon.textColor || '#000000' }}
+                    className="text-3xl font-bold capitalize"
+                  >
+                    {type.type.name}
+                  </span>
+                </div>
+                <div className="text-center mt-2">
+                  <span 
+                    style={{ color: pokemon.textColor || '#000000', opacity: 0.7 }}
+                    className="text-lg"
+                  >
+                    Slot {type.slot}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -182,7 +320,7 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
         ) : isOpen && pokemonDetails ? (
           // Mostrar detalles cuando está cargado
           <div className="py-8 px-8 flex flex-col items-center h-full">
-            <div className="flex flex-col items-center mb-8">
+            <div className="flex flex-col items-center mb-6">
               <p 
                 style={{ 
                   color: pokemon.textColor || '#000000',
@@ -196,7 +334,7 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               <img 
                 src={pokemon.imageUrl} 
                 alt={pokemon.name}
-                className="w-64 h-64 object-contain mb-4"
+                className="w-48 h-48 object-contain mb-3"
               />
               <p 
                 style={{ color: pokemon.textColor || '#000000' }}
@@ -206,46 +344,69 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               </p>
             </div>
 
-            <h3 
-              style={{ color: pokemon.textColor || '#000000' }}
-              className="text-2xl font-bold mb-6 text-center"
-            >
-              Stats
-            </h3>
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 flex-wrap justify-center px-4">
+              <button
+                onClick={() => setActiveTab('stats')}
+                style={{
+                  backgroundColor: activeTab === 'stats' 
+                    ? pokemon.textColor || '#000000'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  color: activeTab === 'stats'
+                    ? pokemon.background || '#ffffff'
+                    : pokemon.textColor || '#000000',
+                }}
+                className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+              >
+                Stats
+              </button>
+              <button
+                onClick={() => setActiveTab('abilities')}
+                style={{
+                  backgroundColor: activeTab === 'abilities' 
+                    ? pokemon.textColor || '#000000'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  color: activeTab === 'abilities'
+                    ? pokemon.background || '#ffffff'
+                    : pokemon.textColor || '#000000',
+                }}
+                className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+              >
+                Abilities
+              </button>
+              <button
+                onClick={() => setActiveTab('moves')}
+                style={{
+                  backgroundColor: activeTab === 'moves' 
+                    ? pokemon.textColor || '#000000'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  color: activeTab === 'moves'
+                    ? pokemon.background || '#ffffff'
+                    : pokemon.textColor || '#000000',
+                }}
+                className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+              >
+                Moves
+              </button>
+              <button
+                onClick={() => setActiveTab('types')}
+                style={{
+                  backgroundColor: activeTab === 'types' 
+                    ? pokemon.textColor || '#000000'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  color: activeTab === 'types'
+                    ? pokemon.background || '#ffffff'
+                    : pokemon.textColor || '#000000',
+                }}
+                className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+              >
+                Types
+              </button>
+            </div>
 
+            {/* Tab Content */}
             <div className="w-full max-w-2xl flex-1 overflow-y-auto px-6">
-              <div className="space-y-4 pb-8">
-                {pokemonDetails.stats.map((stat: any, index: number) => (
-                  <div key={index} className="flex flex-col">
-                    <div className="flex justify-between mb-1">
-                      <span 
-                        style={{ color: pokemon.textColor || '#000000' }}
-                        className="text-lg font-semibold capitalize"
-                      >
-                        {stat.stat.name.replace('-', ' ')}
-                      </span>
-                      <span 
-                        style={{ color: pokemon.textColor || '#000000' }}
-                        className="text-lg font-bold"
-                      >
-                        {stat.base_stat}
-                      </span>
-                    </div>
-                    <div className="w-full h-6 bg-white/30 rounded-full overflow-hidden">
-                      <div 
-                        style={{
-                          width: animateStats ? `${Math.min((stat.base_stat / 130) * 100, 100)}%` : '0%',
-                          transition: 'width 1s ease-out',
-                          transitionDelay: `${index * 0.1}s`,
-                          backgroundColor: pokemon.textColor || '#000000',
-                          opacity: 0.7
-                        }}
-                        className="h-full rounded-full"
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {renderTabContent()}
             </div>
           </div>
         ) : (isVisible || isOpen) ? (
