@@ -76,6 +76,39 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
     }
   }, [isOpen]);
 
+  // Navegación con flechas entre tabs cuando está abierto
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const tabs: TabType[] = ['stats', 'abilities', 'moves', 'types'];
+    
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        event.stopPropagation();
+        setActiveTab((currentTab) => {
+          const currentIndex = tabs.indexOf(currentTab);
+          const newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+          return tabs[newIndex];
+        });
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        event.stopPropagation();
+        setActiveTab((currentTab) => {
+          const currentIndex = tabs.indexOf(currentTab);
+          const newIndex = currentIndex === tabs.length - 1 ? 0 : currentIndex + 1;
+          return tabs[newIndex];
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     const currentCard = cardRef.current;
     
