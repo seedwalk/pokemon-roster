@@ -251,22 +251,19 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
             {pokemonDetails.types.map((type: any, index: number) => (
               <div 
                 key={index} 
-                className="p-6 bg-white/20 rounded-xl backdrop-blur-sm"
+                className="p-8 bg-white/20 rounded-xl backdrop-blur-sm"
               >
-                <div className="flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <img 
+                    src={new URL(`../../assets/pokemon-types/${type.type.name}.svg`, import.meta.url).href}
+                    alt={type.type.name}
+                    className="w-24 h-24 object-contain"
+                  />
                   <span 
                     style={{ color: pokemon.textColor || '#000000' }}
                     className="text-3xl font-bold capitalize"
                   >
                     {type.type.name}
-                  </span>
-                </div>
-                <div className="text-center mt-2">
-                  <span 
-                    style={{ color: pokemon.textColor || '#000000', opacity: 0.7 }}
-                    className="text-lg"
-                  >
-                    Slot {type.slot}
                   </span>
                 </div>
               </div>
