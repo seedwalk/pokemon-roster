@@ -349,12 +349,10 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               <button
                 onClick={() => setActiveTab('stats')}
                 style={{
-                  backgroundColor: activeTab === 'stats' 
-                    ? pokemon.textColor || '#000000'
+                  background: activeTab === 'stats' 
+                    ? pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
                     : 'rgba(255, 255, 255, 0.2)',
-                  color: activeTab === 'stats'
-                    ? pokemon.background || '#ffffff'
-                    : pokemon.textColor || '#000000',
+                  color: pokemon.textColor || '#000000',
                 }}
                 className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
               >
@@ -363,12 +361,10 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               <button
                 onClick={() => setActiveTab('abilities')}
                 style={{
-                  backgroundColor: activeTab === 'abilities' 
-                    ? pokemon.textColor || '#000000'
+                  background: activeTab === 'abilities' 
+                    ? pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
                     : 'rgba(255, 255, 255, 0.2)',
-                  color: activeTab === 'abilities'
-                    ? pokemon.background || '#ffffff'
-                    : pokemon.textColor || '#000000',
+                  color: pokemon.textColor || '#000000',
                 }}
                 className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
               >
@@ -377,12 +373,10 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               <button
                 onClick={() => setActiveTab('moves')}
                 style={{
-                  backgroundColor: activeTab === 'moves' 
-                    ? pokemon.textColor || '#000000'
+                  background: activeTab === 'moves' 
+                    ? pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
                     : 'rgba(255, 255, 255, 0.2)',
-                  color: activeTab === 'moves'
-                    ? pokemon.background || '#ffffff'
-                    : pokemon.textColor || '#000000',
+                  color: pokemon.textColor || '#000000',
                 }}
                 className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
               >
@@ -391,12 +385,10 @@ function RosterItem({ pokemon, pokemonIndex, isActive, isOpen, scrollContainer, 
               <button
                 onClick={() => setActiveTab('types')}
                 style={{
-                  backgroundColor: activeTab === 'types' 
-                    ? pokemon.textColor || '#000000'
+                  background: activeTab === 'types' 
+                    ? pokemon.background || 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)'
                     : 'rgba(255, 255, 255, 0.2)',
-                  color: activeTab === 'types'
-                    ? pokemon.background || '#ffffff'
-                    : pokemon.textColor || '#000000',
+                  color: pokemon.textColor || '#000000',
                 }}
                 className="px-6 py-2 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
               >
