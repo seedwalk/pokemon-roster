@@ -5,6 +5,6 @@ export const extractPokemonId = (url: string): string => {
 }
 
 export const getPokemonImageUrl = (id: string): string => {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+  return new URL(`../assets/pokemons/${id}.png`, import.meta.url).href;
 }
 
